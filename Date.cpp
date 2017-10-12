@@ -12,7 +12,7 @@ Date::Date(){
 	hour = utc_time->tm_hour;
 	min = utc_time->tm_min;
 	sec = utc_time->tm_sec;
-};
+}
 
 Date::Date(unsigned int Y, Month M, unsigned int D) {
 	year = Y;
@@ -21,7 +21,7 @@ Date::Date(unsigned int Y, Month M, unsigned int D) {
 	hour = 0;
 	min = 0;
 	sec = 0;
-};
+}
 
 Date::Date(unsigned int h, unsigned int m, unsigned int s) {
 	time_t cur_time;
@@ -34,7 +34,7 @@ Date::Date(unsigned int h, unsigned int m, unsigned int s) {
 	hour = h;
 	min = m;
 	sec = s;
-};
+}
 
 Date::Date(unsigned int Y, Month M, unsigned int D, unsigned int h, unsigned int m, unsigned int s) {
 	year = Y;
@@ -43,64 +43,84 @@ Date::Date(unsigned int Y, Month M, unsigned int D, unsigned int h, unsigned int
 	hour = h;
 	min = m;
 	sec = s;
-};
+}
 
-Date::Date(const Date &date) {
+Date::Date(const Date& date) {
 	year = date.year;
 	mon = date.mon;
 	day = date.day;
 	hour = date.hour;
 	min = date.min;
 	sec = date.sec;
-};
+}
 
-unsigned int Date::get_year() {
+const Date& Date::operator= (const Date& date)
+{
+	if (this != &date)
+	{
+		year = date.year;
+		mon = date.mon;
+		day = date.day;
+		hour = date.hour;
+		min = date.min;
+		sec = date.sec;
+	}
+	return *this;
+}
+
+unsigned int Date::get_year() const {
 	return year;
-};
+}
 
-unsigned int Date::get_month() {
-	return mon;
-};
+unsigned int Date::get_month() const {
+	return static_cast<int>(mon);
+}
 
-unsigned int Date::get_day() {
+unsigned int Date::get_day() const {
 	return day;
-};
+}
 
-unsigned int Date::get_hour() {
+unsigned int Date::get_hour() const {
 	return hour;
-};
+}
 
-unsigned int Date::get_minutes() {
+unsigned int Date::get_minutes() const {
 	return min;
-};
+}
 
-unsigned int Date::get_seconds() {
+unsigned int Date::get_seconds() const {
 	return sec;
-};
+}
+
+std::ostream& operator<<(std::ostream& out, const Date& date)
+{
+	out << date.get_year() << '-' << date.get_month() << '-' << date.get_day() << ' ' << date.get_hour() << ':' << date.get_minutes() << ':' << date.get_seconds() << std::endl;
+	return out;
+}
 
 Date Date::add_years(unsigned int Y) const {
 	Date result(*this);
 	result.year += Y;
 	return result;
-};
+}
 
 //
 //Date Date::add_months(Month M) const {
 //
-//};
+//}
 //
 //Date Date::add_days(unsigned int D) const {
 //
-//};
+//}
 //
 //Date Date::add_hours(unsigned int h)  const {
 //
-//};
+//}
 //
 //Date Date::add_minutes(unsigned int m) const {
 //
-//};
+//}
 //
 //Date Date::add_seconds(unsigned int s) const {
 //
-//};
+//}
