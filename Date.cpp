@@ -1,13 +1,35 @@
 #include "Date.h"
 #include "Calendar.h"
 
-Date::Date(){
+bool is_leap(unsigned int Y) {
+	if ((Y % 4 == 0 && Y % 100 != 0) || (Y % 400 == 0)) return true;
+    return false;
+}
+
+unsigned int days_in_month(unsigned int Y, Month M) {
+	switch (M) {
+	case Month::January: return 31;
+	case Month::February: return (is_leap(Y) ? 29 : 28);
+	case Month::March: return 31;
+	case Month::April: return 30;
+	case Month::May: return 31;
+	case Month::June: return 30;
+	case Month::July: return 31;
+	case Month::August: return 31;
+	case Month::September: return 30;
+	case Month::October: return 31;
+	case Month::November: return 30;
+	case Month::December: return 31;
+	}
+}
+
+Date::Date() {
 	time_t cur_time;
 	struct tm *utc_time;
 	time(&cur_time);
 	utc_time = gmtime(&cur_time);
 	year = utc_time->tm_year + 1900;
-	mon = Month(utc_time->tm_mon);
+	mon = Month(utc_time->tm_mon + 1);
 	day = utc_time->tm_mday;
 	hour = utc_time->tm_hour;
 	min = utc_time->tm_min;
@@ -29,7 +51,7 @@ Date::Date(unsigned int h, unsigned int m, unsigned int s) {
 	time(&cur_time);
 	cur_date = gmtime(&cur_time);
 	year = cur_date->tm_year + 1900;
-	mon = Month(cur_date->tm_mon);
+	mon = Month(cur_date->tm_mon + 1);
 	day = cur_date->tm_mday;
 	hour = h;
 	min = m;
@@ -54,10 +76,8 @@ Date::Date(const Date& date) {
 	sec = date.sec;
 }
 
-const Date& Date::operator= (const Date& date)
-{
-	if (this != &date)
-	{
+const Date& Date::operator= (const Date& date) {
+	if (this != &date) {
 		year = date.year;
 		mon = date.mon;
 		day = date.day;
@@ -73,7 +93,7 @@ unsigned int Date::get_year() const {
 }
 
 unsigned int Date::get_month() const {
-	return static_cast<int>(mon);
+	return int(mon);
 }
 
 unsigned int Date::get_day() const {
@@ -94,7 +114,19 @@ unsigned int Date::get_seconds() const {
 
 std::ostream& operator<<(std::ostream& out, const Date& date)
 {
-	out << date.get_year() << '-' << date.get_month() << '-' << date.get_day() << ' ' << date.get_hour() << ':' << date.get_minutes() << ':' << date.get_seconds() << std::endl;
+	out.fill('0');
+	out.width(4);
+	out << date.get_year() << '-';
+	out.width(2);
+	out << date.get_month() << '-';
+	out.width(2);
+	out << date.get_day() << ' ';
+	out.width(2);
+	out << date.get_hour() << ':';
+	out.width(2);
+	out << date.get_minutes() << ':';
+	out.width(2);
+	out << date.get_seconds() << std::endl;
 	return out;
 }
 
@@ -104,15 +136,26 @@ Date Date::add_years(unsigned int Y) const {
 	return result;
 }
 
-//
-//Date Date::add_months(Month M) const {
-//
-//}
-//
-//Date Date::add_days(unsigned int D) const {
-//
-//}
-//
+Date Date::add_months(unsigned int M) const {
+	Date result(*this);
+	result.mon = Month((int(mon) + M) % 12);
+	result.year += (int(mon) + M) / 12;
+	return result;
+}
+
+Date Date::add_days(unsigned int D) const {
+	
+	Date result(*this);
+	unsigned int days_in_cur_month;
+	while (D > (days_in_cur_month = days_in_month(result.year, result.mon)))
+	{
+		result = result.add_months(1);
+		D -= days_in_cur_month;
+	}
+	result.day += D;
+	return result;
+}
+
 //Date Date::add_hours(unsigned int h)  const {
 //
 //}
