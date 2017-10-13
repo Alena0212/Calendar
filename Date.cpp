@@ -152,7 +152,8 @@ Date Date::add_days(unsigned int D) const {
 		result = result.add_months(1);
 		D -= days_in_cur_month;
 	}
-	result.day += D;
+	result = result.add_months((result.day + D) / days_in_cur_month);
+	result.day = (result.day + D) % days_in_cur_month;
 	return result;
 }
 
