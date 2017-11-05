@@ -27,13 +27,18 @@ public:
 	unsigned int get_hour() const;
 	unsigned int get_minutes() const;
 	unsigned int get_seconds() const;
-	Date add_years(unsigned int Y) const;
-	Date add_months(unsigned int M) const;
-	Date add_days(unsigned int D) const;
-	Date add_hours(unsigned int h) const;
-	Date add_minutes(unsigned int m) const;
-	Date add_seconds(unsigned int s) const;
-};
+	Date add_years(int Y) const;
+	Date add_months(int M) const;
+	Date add_days(int D) const;
+	Date add_hours(int h) const;
+	Date add_minutes(int m) const;
+	Date add_seconds(int s) const;
+	Date& operator++();
+	Date operator++(int);
+	Date& operator--();
+	Date operator--(int);
+	bool operator==(const Date& date) const;
+	};
 
 
 bool is_leap(unsigned int Y);

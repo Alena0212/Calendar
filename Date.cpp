@@ -130,41 +130,147 @@ std::ostream& operator<<(std::ostream& out, const Date& date)
 	return out;
 }
 
-Date Date::add_years(unsigned int Y) const {
+Date Date::add_years(int Y) const {
 	Date result(*this);
 	result.year += Y;
 	return result;
 }
 
-Date Date::add_months(unsigned int M) const {
+Date Date::add_months(int M) const {
 	Date result(*this);
-	result.mon = Month((int(mon) + M) % 12);
-	result.year += (int(mon) + M) / 12;
-	return result;
-}
-
-Date Date::add_days(unsigned int D) const {
-	
-	Date result(*this);
-	unsigned int days_in_cur_month;
-	while (D > (days_in_cur_month = days_in_month(result.year, result.mon)))
+	if (M != 0)
 	{
-		result = result.add_months(1);
-		D -= days_in_cur_month;
+		if (M > 0) {
+			result = result.add_years((M + int(result.mon) == 13) ? 1 : (M / 12));
+			result.mon = ((int(result.mon) + M) % 12) ? (Month(((int(result.mon) + M) % 12))) : Month::December;
+		}
+		else {
+			M *= (-1);
+			result = result.add_years(-((M == int(result.mon)) ? 1 : (M / 12)));
+			if (int(result.mon) > (M % 12))
+				result.mon = Month(int(result.mon) - (M % 12));
+			else if (int(result.mon) == (M % 12)) 	
+				result.mon = Month::December;			
+			else
+				result.mon = (Month(12 + int(result.mon) - M));
+		};
 	}
-	result = result.add_months((result.day + D) / days_in_cur_month);
-	result.day = (result.day + D) % days_in_cur_month;
 	return result;
 }
 
-//Date Date::add_hours(unsigned int h)  const {
-//
-//}
-//
-//Date Date::add_minutes(unsigned int m) const {
-//
-//}
-//
-//Date Date::add_seconds(unsigned int s) const {
-//
-//}
+Date Date::add_days(int D) const {
+	Date result(*this);
+	if (D != 0) {
+		unsigned int days_in_cur_month = days_in_month(result.year, result.mon);
+		if (D > 0) {
+			if (result.day + D <= days_in_cur_month) result.day += D;
+			else {
+				result = result.add_months(1);
+				result.day = 1;
+				D -= days_in_cur_month - result.day;
+				while (D > (days_in_cur_month = days_in_month(result.year, result.mon))) {
+					result = result.add_months(1);
+					D -= days_in_cur_month;
+				}
+				result.day = ((D  % days_in_cur_month) == 0) ? days_in_cur_month : (D % days_in_cur_month);
+			}
+		}
+		else {
+			D *= (-1);
+			if (result.day > D) result.day -= D;
+			else {
+				D -= result.day;
+				result = result.add_months(-1);
+				result.day = days_in_month(result.year, result.mon);
+				while (D > (days_in_cur_month = days_in_month(result.year, result.mon))) {
+					result = result.add_months(-1);
+					D -= days_in_cur_month;
+				}
+				if ((days_in_cur_month - D) != 0)
+					result.day = days_in_cur_month - D;
+				else {
+					result = result.add_months(-1);
+					result.day = days_in_month(result.year, result.mon);
+				}
+			}
+		}
+	}
+	return result;
+}
+
+Date Date::add_hours(int h)  const {
+	Date result(*this);
+	if (h >= 0) {
+		result = result.add_days((int(result.hour) + h) / 24);
+		result.hour = (int(result.hour) + h) % 24;
+	}
+	else {
+		h *= (-1);
+		if (result.hour >= h) result.hour -= h;
+		else {
+			h -= result.hour + 1;
+			result = result.add_days(-(1 + h/24));
+			result.hour = (23 - (h % 24));
+		}
+	}
+	return result;
+}
+
+Date Date::add_minutes(int m) const {
+	Date result(*this);
+	if (m >= 0) {
+		result = result.add_hours((int(result.min) + m) / 60);
+		result.min = (int(result.min) + m) % 60;
+	}
+	else {
+		m *= (-1);
+		if (result.min >= m) result.min -= m;
+		else {
+			m -= result.min + 1;
+			result = result.add_hours(-(1 + m / 60));
+			result.min = (59 - (m % 60));
+		}
+	}
+	return result;
+}
+
+Date Date::add_seconds(int s) const {
+	Date result(*this); 
+	if (s >= 0) {
+		result = result.add_minutes((int(result.sec) + s) / 60);
+		result.sec = (int(result.sec) + s) % 60;
+	}
+	else {
+		s *= (-1);
+		s -= result.sec + 1;
+		result = result.add_minutes(-(1 + s / 60));
+		result.sec = (59 - (s % 60));
+	}
+	return result;
+}
+
+bool Date::operator==(const Date& date) const {
+	return ((year == date.year) && (mon == date.mon) && (day == date.day) && (hour == date.hour) && (min == date.min) && (sec == date.sec));
+}
+
+Date& Date::operator++() {
+	*this = (*this).add_seconds(1);
+	return *this;
+}
+
+Date Date::operator++(int) {
+	Date d(*this);
+	++(*this);
+	return d;
+}
+
+Date& Date::operator--() {
+	*this = (*this).add_seconds(-1);
+	return *this;
+}
+
+Date Date::operator--(int) {
+	Date d(*this);
+	--(*this);
+	return d;
+}
