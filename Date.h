@@ -10,7 +10,7 @@ class Date {
 private:
 	unsigned int year;
 	unsigned int day;
-	Month mon;
+	Month mon; 
 	unsigned int hour;
 	unsigned int min;
 	unsigned int sec;
@@ -27,12 +27,17 @@ public:
 	unsigned int get_hour() const;
 	unsigned int get_minutes() const;
 	unsigned int get_seconds() const;
+	DateInterval get_interval(const Date& another_d) const;
 	Date add_years(int Y) const;
 	Date add_months(int M) const;
 	Date add_days(int D) const;
 	Date add_hours(int h) const;
 	Date add_minutes(int m) const;
 	Date add_seconds(int s) const;
+	Date  operator+ (const DateInterval &intv) const;
+	Date& operator+=(const DateInterval &intv);
+	Date  operator- (const DateInterval &intv) const;
+	Date& operator-=(const DateInterval &intv);
 	Date& operator++();
 	Date operator++(int);
 	Date& operator--();

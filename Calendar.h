@@ -4,3 +4,5 @@
 #include <ctime>
 #include <iostream>
 
+class Date;
+class DateInterval;

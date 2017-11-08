@@ -1,4 +1,5 @@
 #include "Date.h"
+#include "DateInterval.h"
 #include "Calendar.h"
 
 bool is_leap(unsigned int Y) {
@@ -36,14 +37,7 @@ Date::Date() {
 	sec = utc_time->tm_sec;
 }
 
-Date::Date(unsigned int Y, Month M, unsigned int D) {
-	year = Y;
-	mon = M;
-	day = D;
-	hour = 0;
-	min = 0;
-	sec = 0;
-}
+Date::Date(unsigned int Y, Month M, unsigned int D) : Date(Y, M, D, 0, 0, 0) { }
 
 Date::Date(unsigned int h, unsigned int m, unsigned int s) {
 	time_t cur_time;
@@ -112,22 +106,9 @@ unsigned int Date::get_seconds() const {
 	return sec;
 }
 
-std::ostream& operator<<(std::ostream& out, const Date& date)
-{
-	out.fill('0');
-	out.width(4);
-	out << date.get_year() << '-';
-	out.width(2);
-	out << date.get_month() << '-';
-	out.width(2);
-	out << date.get_day() << ' ';
-	out.width(2);
-	out << date.get_hour() << ':';
-	out.width(2);
-	out << date.get_minutes() << ':';
-	out.width(2);
-	out << date.get_seconds() << std::endl;
-	return out;
+DateInterval Date::get_interval(const Date& another_d) const {
+	return DateInterval(int(year) - int(another_d.year), int(mon) - int(another_d.mon), \
+		int(day) - int(another_d.day), int(hour) - int(another_d.hour), int(min) - int(another_d.min), int(sec) - int(another_d.sec));
 }
 
 Date Date::add_years(int Y) const {
@@ -253,6 +234,46 @@ bool Date::operator==(const Date& date) const {
 	return ((year == date.year) && (mon == date.mon) && (day == date.day) && (hour == date.hour) && (min == date.min) && (sec == date.sec));
 }
 
+Date Date::operator+(const DateInterval &intv) const {
+	Date result = (*this).add_years(intv.get_years());
+	result = (*this).add_months(intv.get_months());
+	result = (*this).add_days(intv.get_days());
+	result = (*this).add_hours(intv.get_hours());
+	result = (*this).add_minutes(intv.get_minutes());
+	result = (*this).add_seconds(intv.get_seconds());
+	return result;
+}
+
+Date& Date::operator+=(const DateInterval &intv) {
+	(*this) = (*this).add_years(intv.get_years());
+	(*this) = (*this).add_months(intv.get_months());
+	(*this) = (*this).add_days(intv.get_days());
+	(*this) = (*this).add_hours(intv.get_hours());
+	(*this) = (*this).add_minutes(intv.get_minutes());
+	(*this) = (*this).add_seconds(intv.get_seconds());
+	return *this;
+}
+
+Date Date::operator-(const DateInterval &intv) const {
+	Date result = (*this).add_years(-intv.get_years());
+	result = (*this).add_months(-intv.get_months());
+	result = (*this).add_days(-intv.get_days());
+	result = (*this).add_hours(-intv.get_hours());
+	result = (*this).add_minutes(-intv.get_minutes());
+	result = (*this).add_seconds(-intv.get_seconds());
+	return result;
+}
+
+Date& Date::operator-=(const DateInterval &intv) {
+	(*this) = (*this).add_years(-intv.get_years());
+	(*this) = (*this).add_months(-intv.get_months());
+	(*this) = (*this).add_days(-intv.get_days());
+	(*this) = (*this).add_hours(-intv.get_hours());
+	(*this) = (*this).add_minutes(-intv.get_minutes());
+	(*this) = (*this).add_seconds(-intv.get_seconds());
+	return *this;
+}
+
 Date& Date::operator++() {
 	*this = (*this).add_seconds(1);
 	return *this;
@@ -273,4 +294,22 @@ Date Date::operator--(int) {
 	Date d(*this);
 	--(*this);
 	return d;
+}
+
+std::ostream& operator<<(std::ostream& out, const Date& date)
+{
+	out.fill('0');
+	out.width(4);
+	out << date.get_year() << '-';
+	out.width(2);
+	out << date.get_month() << '-';
+	out.width(2);
+	out << date.get_day() << ' ';
+	out.width(2);
+	out << date.get_hour() << ':';
+	out.width(2);
+	out << date.get_minutes() << ':';
+	out.width(2);
+	out << date.get_seconds() << std::endl;
+	return out;
 }
