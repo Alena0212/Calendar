@@ -245,12 +245,7 @@ Date Date::operator+(const DateInterval &intv) const {
 }
 
 Date& Date::operator+=(const DateInterval &intv) {
-	(*this) = (*this).add_years(intv.get_years());
-	(*this) = (*this).add_months(intv.get_months());
-	(*this) = (*this).add_days(intv.get_days());
-	(*this) = (*this).add_hours(intv.get_hours());
-	(*this) = (*this).add_minutes(intv.get_minutes());
-	(*this) = (*this).add_seconds(intv.get_seconds());
+	(*this) = (*this) + intv;
 	return *this;
 }
 
@@ -265,12 +260,7 @@ Date Date::operator-(const DateInterval &intv) const {
 }
 
 Date& Date::operator-=(const DateInterval &intv) {
-	(*this) = (*this).add_years(-intv.get_years());
-	(*this) = (*this).add_months(-intv.get_months());
-	(*this) = (*this).add_days(-intv.get_days());
-	(*this) = (*this).add_hours(-intv.get_hours());
-	(*this) = (*this).add_minutes(-intv.get_minutes());
-	(*this) = (*this).add_seconds(-intv.get_seconds());
+	(*this) = (*this) - intv;
 	return *this;
 }
 

@@ -11,6 +11,7 @@ private:
 	int seconds;
 public:
 	DateInterval(int Y, int M, int D, int h, int m, int s);
+	DateInterval(Date& one, Date& another);
 	DateInterval(const DateInterval& intv);
 	const DateInterval& operator= (const DateInterval& intv);
 	int get_years() const;
