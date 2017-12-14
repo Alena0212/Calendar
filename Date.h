@@ -1,5 +1,7 @@
 #pragma once
-#include <iostream>
+#include "Date.h"
+#include "DateInterval.h"
+#include "Calendar.h"
 
 enum class Month {
 	January = 1, February, March, April, May, June,
@@ -43,6 +45,7 @@ public:
 	Date& operator--();
 	Date operator--(int);
 	bool operator==(const Date& date) const;
+	std::string format_date(std::string format);
 	};
 
 

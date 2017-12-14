@@ -21,6 +21,7 @@ unsigned int days_in_month(unsigned int Y, Month M) {
 	case Month::October: return 31;
 	case Month::November: return 30;
 	case Month::December: return 31;
+	default: return 0;
 	}
 }
 
@@ -53,12 +54,22 @@ Date::Date(unsigned int h, unsigned int m, unsigned int s) {
 }
 
 Date::Date(unsigned int Y, Month M, unsigned int D, unsigned int h, unsigned int m, unsigned int s) {
-	year = Y;
+	year = day = hour = min = sec = 0;
 	mon = M;
-	day = D;
-	hour = h;
-	min = m;
-	sec = s;
+	try {
+		if (Y > 9999) throw 9999;
+		year = Y;
+		*this = (*this).add_days(D);
+		*this = (*this).add_hours(h);
+		*this = (*this).add_minutes(m);
+		*this = (*this).add_seconds(s);
+		if (year > 9999) throw 9999;
+	}
+	catch (int i) {
+		std::cerr << "Date year overflow, it must be not more than " << i << ", press any key to quit" << std::endl;
+		std::cin.get();
+		exit(1);
+	}
 }
 
 Date::Date(const Date& date) {
@@ -113,7 +124,15 @@ DateInterval Date::get_interval(const Date& another_d) const {
 
 Date Date::add_years(int Y) const {
 	Date result(*this);
-	result.year += Y;
+	try {
+		result.year += Y;
+		if (result.year > 9999) throw 9999;
+	}
+	catch (int i) {
+		std::cerr << "Date year overflow, it must be not more than " << i << ", press ENTER to quit" << std::endl;
+		std::cin.get();
+		exit(1);
+	}
 	return result;
 }
 
@@ -127,7 +146,7 @@ Date Date::add_months(int M) const {
 		}
 		else {
 			M *= (-1);
-			result = result.add_years(-((M == int(result.mon)) ? 1 : (M / 12)));
+			result = result.add_years(-((int(result.mon) <= (M % 12)) ? 1 : (M / 12)));
 			if (int(result.mon) > (M % 12))
 				result.mon = Month(int(result.mon) - (M % 12));
 			else if (int(result.mon) == (M % 12)) 	
@@ -235,12 +254,13 @@ bool Date::operator==(const Date& date) const {
 }
 
 Date Date::operator+(const DateInterval &intv) const {
-	Date result = (*this).add_years(intv.get_years());
-	result = (*this).add_months(intv.get_months());
-	result = (*this).add_days(intv.get_days());
-	result = (*this).add_hours(intv.get_hours());
-	result = (*this).add_minutes(intv.get_minutes());
-	result = (*this).add_seconds(intv.get_seconds());
+	Date result(*this);
+	result = result.add_years(intv.get_years());
+	result = result.add_months(intv.get_months());
+	result = result.add_days(intv.get_days());
+	result = result.add_hours(intv.get_hours());
+	result = result.add_minutes(intv.get_minutes());
+	result = result.add_seconds(intv.get_seconds());
 	return result;
 }
 
@@ -250,12 +270,13 @@ Date& Date::operator+=(const DateInterval &intv) {
 }
 
 Date Date::operator-(const DateInterval &intv) const {
-	Date result = (*this).add_years(-intv.get_years());
-	result = (*this).add_months(-intv.get_months());
-	result = (*this).add_days(-intv.get_days());
-	result = (*this).add_hours(-intv.get_hours());
-	result = (*this).add_minutes(-intv.get_minutes());
-	result = (*this).add_seconds(-intv.get_seconds());
+	Date result = *this;
+	result = result.add_years(-intv.get_years());
+	result = result.add_months(-intv.get_months());
+	result = result.add_days(-intv.get_days());
+	result = result.add_hours(-intv.get_hours());
+	result = result.add_minutes(-intv.get_minutes());
+	result = result.add_seconds(-intv.get_seconds());
 	return result;
 }
 
@@ -286,6 +307,79 @@ Date Date::operator--(int) {
 	return d;
 }
 
+std::string Date::format_date(std::string format) {
+	std::string months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov" "Dec" };
+	std::string cur_sign = "\0";
+	std::stringstream out("\0");
+	int i = 0;
+	while (i <= format.size() - 1) {
+	    cur_sign += format[i];
+		if (i <=  format.size() - 2) cur_sign += format[i + 1];
+		if (i <=  format.size() - 3) cur_sign += format[i + 2];
+		if (i <= format.size() - 4) cur_sign += format[i + 3];
+	    if (cur_sign == "YYYY") {
+				out.fill('0');
+				out.width(4);
+				out << year;
+				cur_sign = "\0";
+				i += 4;
+				continue;
+			}
+		if (i <= format.size() - 4)	cur_sign.erase(cur_sign.size() - 1);
+		if (cur_sign == "MMM") {
+				out << months[int(mon) - 1];
+				cur_sign = "\0";
+				i += 3;
+				continue;
+			}
+		if (i <= format.size() - 3) cur_sign.erase(cur_sign.size() - 1);
+		if (cur_sign == "MM") {
+			out.fill('0');
+			out.width(2);
+			out << int(mon);
+			cur_sign = "\0";
+			i += 2;
+			continue;
+			}
+		if (cur_sign == "DD") {
+			out.fill('0');
+			out.width(2);
+			out << day;
+			cur_sign = "\0";
+			i += 2;
+			continue;
+			}
+		if (cur_sign == "hh") {
+				out.fill('0');
+				out.width(2);
+				out << hour;
+				cur_sign = "\0";
+				i += 2;
+				continue;
+			}
+		if (cur_sign == "mm") {
+				out.fill('0');
+				out.width(2);
+				out << min;
+				cur_sign = "\0";
+				i += 2;
+				continue;
+			}
+		if (cur_sign == "ss") {
+				out.fill('0');
+				out.width(2);
+				out << sec;
+				cur_sign = "\0";
+				i += 2;
+				continue;
+			}	
+	    out << format[i];
+		cur_sign = "\0";
+		i++;
+	}
+	return out.str();
+}
+
 std::ostream& operator<<(std::ostream& out, const Date& date)
 {
 	out.fill('0');
@@ -303,3 +397,4 @@ std::ostream& operator<<(std::ostream& out, const Date& date)
 	out << date.get_seconds() << std::endl;
 	return out;
 }
+
