@@ -308,7 +308,7 @@ Date Date::operator--(int) {
 }
 
 std::string Date::format_date(std::string format) {
-	std::string months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov" "Dec" };
+	std::string months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	std::string cur_sign = "\0";
 	std::stringstream out("\0");
 	int i = 0;
